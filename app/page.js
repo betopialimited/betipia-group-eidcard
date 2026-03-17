@@ -39,9 +39,10 @@ export default function EidCardGenerator() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const [name, setName] = useState("");
-  const [designation, setDesignation] = useState("");
+  const [name, setName] = useState("Your Name");
+  const [designation, setDesignation] = useState("Your Designation");
   const canvasRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
@@ -52,6 +53,14 @@ export default function EidCardGenerator() {
       const reader = new FileReader();
       reader.addEventListener("load", () => setPhotoSrc(reader.result));
       reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleChangePhoto = () => {
+    // Reset input value so same file can be re-selected
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+      fileInputRef.current.click();
     }
   };
 
@@ -265,11 +274,11 @@ export default function EidCardGenerator() {
               />
             </div>
 
-            {!photoSrc && (
-              <div>
-                <label className="block text-sm font-medium text-neutral-700 mb-1">
-                  Photo Upload
-                </label>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-1">
+                Photo Upload
+              </label>
+              {!photoSrc ? (
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-300 border-dashed rounded-lg hover:border-orange-400 transition-colors bg-neutral-50 relative">
                   <div className="space-y-1 text-center">
                     <ImageIcon className="mx-auto h-12 w-12 text-neutral-400" />
@@ -280,6 +289,7 @@ export default function EidCardGenerator() {
                       >
                         <span>Upload a file</span>
                         <input
+                          ref={fileInputRef}
                           id="file-upload"
                           name="file-upload"
                           type="file"
@@ -294,8 +304,19 @@ export default function EidCardGenerator() {
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <>
+                  {/* Hidden input for re-upload */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="sr-only"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </>
+              )}
+            </div>
           </div>
 
           {/* Photo Cropper UI */}
@@ -334,6 +355,14 @@ export default function EidCardGenerator() {
                   className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
                 />
               </div>
+              {/* Change Photo button */}
+              <button
+                onClick={handleChangePhoto}
+                className="w-full py-2 px-4 border-2 border-dashed border-orange-400 text-orange-600 hover:bg-orange-50 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
+              >
+                <Upload className="w-4 h-4" />
+                Change Photo
+              </button>
             </div>
           )}
         </div>
@@ -362,16 +391,28 @@ export default function EidCardGenerator() {
               height={TEMPLATE_HEIGHT}
               className="absolute inset-0 w-full h-full object-contain pointer-events-none"
             />
-            {/* Placeholder state if needed, though canvas does load right away */}
+            {/* Placeholder – centered over the oval photo area on the card */}
             {!photoSrc && (
-              <div className="absolute top-8 left-8 bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-neutral-100 flex items-center gap-2 animate-bounce">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
-                </span>
-                <span className="text-sm font-medium text-neutral-700">
-                  Upload Your Photo...
-                </span>
+              <div
+                className="absolute flex items-center justify-center"
+                style={{
+                  // The oval center on the 2160×2160 canvas
+                  // ovalX=529, ovalY=985, radX=296, radY=395
+                  // As percentages of the full canvas:
+                  left: `${(CONFIG.ovalX / TEMPLATE_WIDTH) * 100}%`,
+                  top: `${(CONFIG.ovalY / TEMPLATE_HEIGHT) * 100}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+              >
+                <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-neutral-100 flex items-center gap-2 animate-bounce whitespace-nowrap">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+                  </span>
+                  <span className="text-sm font-medium text-neutral-700">
+                    Upload Your Photo...
+                  </span>
+                </div>
               </div>
             )}
           </div>
