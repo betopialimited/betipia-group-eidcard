@@ -39,8 +39,8 @@ export default function EidCardGenerator() {
   const [zoom, setZoom] = useState(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-  const [name, setName] = useState("Abdullah Shafwan Taif");
-  const [designation, setDesignation] = useState("senior executive");
+  const [name, setName] = useState("");
+  const [designation, setDesignation] = useState("");
   const canvasRef = useRef(null);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
@@ -248,7 +248,7 @@ export default function EidCardGenerator() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-shadow outline-none text-neutral-900"
-                placeholder="Ex. Abdullah Shafwan Taif"
+                placeholder="Your Name"
               />
             </div>
 
@@ -261,7 +261,7 @@ export default function EidCardGenerator() {
                 value={designation}
                 onChange={(e) => setDesignation(e.target.value)}
                 className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-shadow outline-none text-neutral-900"
-                placeholder="Ex. senior executive"
+                placeholder="Your Designation"
               />
             </div>
 
