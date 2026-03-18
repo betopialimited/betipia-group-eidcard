@@ -150,21 +150,7 @@ export default function EidCardGenerator() {
     return () => clearTimeout(timeoutId);
   }, [photoSrc, croppedAreaPixels, name, designation]);
 
-  useEffect(() => {
-    // Increment view count on load
-    const trackView = async () => {
-      try {
-        await fetch("/api/stats", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "view" }),
-        });
-      } catch (err) {
-        console.error("Failed to track view:", err);
-      }
-    };
-    trackView();
-  }, []);
+  // View tracking removed - only downloads are tracked for accurate stats
 
   const handleDownload = async () => {
     const canvas = canvasRef.current;

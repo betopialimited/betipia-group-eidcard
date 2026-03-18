@@ -18,21 +18,16 @@ export async function GET(request) {
     const db = client.db(DB_NAME);
     const collection = db.collection(COLLECTION_NAME);
 
-    // Get aggregate sums or counts of views, downloads
-    const views = await collection.countDocuments({ action: "view" });
-    const downloads = await collection.countDocuments({ action: "download" });
-    
-    // Get last 100 activities ordered by timestamp desc
-    const actions = await collection
-      .find({})
+    // Only fetch download actions - views are not tracked
+    const downloadActions = await collection
+      .find({ action: "download" })
       .sort({ timestamp: -1 })
-      .limit(100)
       .toArray();
 
     return NextResponse.json({
-      views,
-      downloads,
-      actions: actions.map(item => ({
+      views: 0,
+      downloads: downloadActions.length,
+      actions: downloadActions.map(item => ({
         id: item._id,
         action: item.action,
         name: item.name,
@@ -50,8 +45,29 @@ export async function POST(request) {
   try {
     const { action, name, designation } = await request.json();
 
-    if (!["view", "download"].includes(action)) {
-      return NextResponse.json({ error: "Invalid action type" }, { status: 400 });
+    // Only allow download actions
+    if (action !== "download") {
+      return NextResponse.json({ error: "Only download actions are tracked" }, { status: 400 });
+    }
+
+    // Strict validation: must have real name and designation
+    const trimmedName = (name || "").trim();
+    const trimmedDesig = (designation || "").trim();
+
+    // Block empty values
+    if (!trimmedName || !trimmedDesig) {
+      return NextResponse.json({ error: "Name and designation are required" }, { status: 400 });
+    }
+
+    // Block default placeholder values
+    const blockedNames = ["your name", "name", "test", "demo"];
+    const blockedDesigs = ["your designation", "designation", "test", "demo"];
+
+    if (blockedNames.includes(trimmedName.toLowerCase())) {
+      return NextResponse.json({ error: "Please enter a valid name" }, { status: 400 });
+    }
+    if (blockedDesigs.includes(trimmedDesig.toLowerCase())) {
+      return NextResponse.json({ error: "Please enter a valid designation" }, { status: 400 });
     }
 
     const client = await clientPromise;
@@ -59,14 +75,11 @@ export async function POST(request) {
     const collection = db.collection(COLLECTION_NAME);
 
     const logEntry = {
-      action,
+      action: "download",
+      name: trimmedName,
+      designation: trimmedDesig,
       timestamp: new Date().toISOString(),
     };
-
-    if (action === "download") {
-      if (name) logEntry.name = name;
-      if (designation) logEntry.designation = designation;
-    }
 
     await collection.insertOne(logEntry);
     

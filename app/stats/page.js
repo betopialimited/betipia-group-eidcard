@@ -2,14 +2,13 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import {
-  Eye,
   Download,
   RefreshCw,
-  Clock,
   ArrowLeft,
   Lock,
   Users,
   TrendingUp,
+  ChevronLeft,
   ChevronRight,
   LogOut,
   Activity,
@@ -22,7 +21,9 @@ export default function StatisticsDashboard() {
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState("");
-  const [filter, setFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
+
 
   const fetchStats = useCallback(
     async (p = password) => {
@@ -80,32 +81,41 @@ export default function StatisticsDashboard() {
   const dashboardStats = useMemo(() => {
     if (!stats) return null;
 
+    const actions = stats.actions || [];
     const uniqueUsers = new Set(
-      (stats.actions || [])
+      actions
         .filter((a) => a.name)
         .map((a) => a.name.toLowerCase()),
     );
-    const downloadsLast24h = (stats.actions || []).filter(
+    const downloadsLast24h = actions.filter(
       (a) =>
-        a.action === "download" &&
         new Date() - new Date(a.timestamp) < 24 * 60 * 60 * 1000,
     ).length;
 
     return {
       uniqueUsers: uniqueUsers.size,
-      recentActivityCount: (stats.actions || []).length,
+      recentActivityCount: actions.length,
       downloadsLast24h,
-      totalActivity: (stats.views || 0) + (stats.downloads || 0),
-      totalViews: stats.views || 0,
-      totalDownloads: stats.downloads || 0,
+      totalDownloads: actions.length,
     };
   }, [stats]);
 
   const filteredActions = useMemo(() => {
     if (!stats || !stats.actions) return [];
-    if (filter === "all") return stats.actions;
-    return stats.actions.filter((a) => a.action === filter);
-  }, [stats, filter]);
+    return stats.actions;
+  }, [stats]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredActions.length / ITEMS_PER_PAGE));
+
+  const paginatedActions = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredActions.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredActions, currentPage]);
+
+  // Reset page when data changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [stats]);
 
   if (loading && !stats && !authError && !isAuthenticated) {
     return (
@@ -253,10 +263,21 @@ export default function StatisticsDashboard() {
         </header>
 
         {/* Secondary Stats Strip */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
           <div className="bg-neutral-900/40 border border-white/5 rounded-2xl p-5 backdrop-blur-lg flex flex-col justify-between">
             <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest">
-              Active Users
+              Total Downloads
+            </span>
+            <div className="flex items-baseline gap-2 mt-2">
+              <span className="text-2xl font-black">
+                {dashboardStats?.totalDownloads || 0}
+              </span>
+              <Download className="w-4 h-4 text-emerald-400" />
+            </div>
+          </div>
+          <div className="bg-neutral-900/40 border border-white/5 rounded-2xl p-5 backdrop-blur-lg flex flex-col justify-between">
+            <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest">
+              Unique Users
             </span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-black">
@@ -267,35 +288,13 @@ export default function StatisticsDashboard() {
           </div>
           <div className="bg-neutral-900/40 border border-white/5 rounded-2xl p-5 backdrop-blur-lg flex flex-col justify-between">
             <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest">
-              Recent Actions
-            </span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-black">
-                {dashboardStats?.recentActivityCount || 0}
-              </span>
-              <Activity className="w-4 h-4 text-orange-400" />
-            </div>
-          </div>
-          <div className="bg-neutral-900/40 border border-white/5 rounded-2xl p-5 backdrop-blur-lg flex flex-col justify-between">
-            <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest">
-              24h Growth
+              Last 24h
             </span>
             <div className="flex items-baseline gap-2 mt-2">
               <span className="text-2xl font-black">
                 +{dashboardStats?.downloadsLast24h || 0}
               </span>
               <TrendingUp className="w-4 h-4 text-emerald-400" />
-            </div>
-          </div>
-          <div className="bg-neutral-900/40 border border-white/5 rounded-2xl p-5 backdrop-blur-lg flex flex-col justify-between">
-            <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest">
-              Total Combined
-            </span>
-            <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl font-black">
-                {dashboardStats?.totalActivity || 0}
-              </span>
-              <TrendingUp className="w-4 h-4 text-orange-400" />
             </div>
           </div>
           <div className="bg-neutral-900/40 border border-white/5 rounded-2xl p-5 backdrop-blur-lg flex flex-col justify-between">
@@ -311,36 +310,10 @@ export default function StatisticsDashboard() {
           </div>
         </div>
 
-        {/* Main Stats Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-          {/* Card 1: Page Views */}
-          <div className="lg:col-span-1 group">
-            <div className="h-full bg-linear-to-br from-neutral-900/80 to-neutral-900/40 border border-white/5 rounded-xl p-10 relative overflow-hidden transition-all duration-500 hover:border-orange-500/20 hover:shadow-2xl hover:shadow-orange-500/5 group">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
-
-              <div className="relative z-10 flex h-full justify-between">
-                <div>
-                  <div className="w-14 h-14 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-400 mb-8 border border-orange-500/20 group-hover:bg-orange-500 group-hover:text-black transition-all">
-                    <Eye className="w-7 h-7" />
-                  </div>
-                  <p className="text-sm font-bold text-neutral-500 uppercase tracking-[0.2em]">
-                    Audience Engagement
-                  </p>
-                  <h3 className="text-neutral-300 font-medium mt-1">
-                    Total Page Traffic
-                  </h3>
-                </div>
-                <div className="">
-                  <h2 className="text-7xl font-black tracking-tighter text-white group-hover:scale-105 transition-transform origin-left">
-                    {stats?.views || 0}
-                  </h2>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 2: Downloads */}
-          <div className="lg:col-span-1">
+        {/* Main Stats Card - Downloads Only */}
+        <div className="grid grid-cols-1 gap-8 mb-12">
+          {/* Card: Downloads */}
+          <div className="group">
             <div className="h-full bg-linear-to-br from-emerald-950/20 to-neutral-950 border border-emerald-500/10 rounded-xl p-10 relative overflow-hidden transition-all duration-500 hover:border-emerald-500/30 hover:shadow-2xl hover:shadow-emerald-500/5 group">
               <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-700"></div>
 
@@ -350,15 +323,15 @@ export default function StatisticsDashboard() {
                     <Download className="w-7 h-7" />
                   </div>
                   <p className="text-sm font-bold text-neutral-500 uppercase tracking-[0.2em]">
-                    Conversion Data
+                    Total Downloads
                   </p>
                   <h3 className="text-neutral-300 font-medium mt-1">
-                    Content Generated
+                    Cards Generated & Downloaded
                   </h3>
                 </div>
                 <div className="">
                   <h2 className="text-7xl font-black tracking-tighter text-white group-hover:scale-105 transition-transform origin-left">
-                    {stats?.downloads || 0}
+                    {dashboardStats?.totalDownloads || 0}
                   </h2>
                 </div>
               </div>
@@ -374,59 +347,20 @@ export default function StatisticsDashboard() {
             <div className="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5">
               <div>
                 <h3 className="text-2xl font-black tracking-tight flex items-center gap-4 italic uppercase">
-                  Activity{" "}
+                  Download{" "}
                   <span className="text-orange-500 not-italic font-light">
                     History
                   </span>
                 </h3>
                 <p className="text-neutral-500 text-sm font-medium mt-1">
-                  Detailed log of recent portal interactions
+                  Log of all card downloads
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 p-1.5 bg-neutral-950/50 border border-white/5 rounded-full backdrop-blur-md">
-                {[
-                  {
-                    id: "all",
-                    label: "All",
-                    count: dashboardStats?.totalActivity,
-                    icon: Activity,
-                  },
-                  {
-                    id: "view",
-                    label: "Views",
-                    count: dashboardStats?.totalViews,
-                    icon: Eye,
-                  },
-                  {
-                    id: "download",
-                    label: "Downloads",
-                    count: dashboardStats?.totalDownloads,
-                    icon: Download,
-                  },
-                ].map((btn) => (
-                  <button
-                    key={btn.id}
-                    onClick={() => setFilter(btn.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                      filter === btn.id
-                        ? "bg-orange-500 text-black shadow-lg shadow-orange-500/20"
-                        : "text-neutral-500 hover:text-neutral-200 hover:bg-white/5"
-                    }`}
-                  >
-                    <btn.icon className="w-3.5 h-3.5" />
-                    <span>{btn.label}</span>
-                    <span
-                      className={`px-1.5 py-0.5 rounded-md text-[9px] ${filter === btn.id ? "bg-black/10 text-black" : "bg-white/5 text-neutral-400"}`}
-                    >
-                      {btn.count || 0}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
               <div className="hidden lg:block px-5 py-2.5 bg-neutral-800/80 rounded-full text-[10px] font-black tracking-widest text-neutral-400 border border-white/5">
-                SHOWING {filteredActions.length} RECORDS
+                {filteredActions.length > 0
+                  ? `${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, filteredActions.length)} OF ${filteredActions.length}`
+                  : "0 RECORDS"}
               </div>
             </div>
 
@@ -440,31 +374,23 @@ export default function StatisticsDashboard() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredActions.map((item, idx) => (
+                  {paginatedActions.map((item, idx) => (
                     <div
                       key={item.id}
                       className="group/item relative flex items-center gap-6 p-6 bg-white/2 hover:bg-white/5 border border-white/5 rounded-3xl transition-all duration-300 hover:translate-x-1"
                       style={{ animationDelay: `${idx * 0.05}s` }}
                     >
                       <div
-                        className={`w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors ${
-                          item.action === "download"
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 group-hover/item:bg-emerald-500 group-hover/item:text-black"
-                            : "bg-orange-500/10 text-orange-400 border-orange-500/20 group-hover/item:bg-orange-500 group-hover/item:text-black"
-                        }`}
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center border transition-colors bg-emerald-500/10 text-emerald-400 border-emerald-500/20 group-hover/item:bg-emerald-500 group-hover/item:text-black"
                       >
-                        {item.action === "download" ? (
-                          <Download className="w-6 h-6" />
-                        ) : (
-                          <Eye className="w-6 h-6" />
-                        )}
+                        <Download className="w-6 h-6" />
                       </div>
 
                       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs font-black tracking-widest text-neutral-500 uppercase">
-                              {item.action}
+                              DOWNLOAD
                             </span>
                             <span className="w-1 h-1 bg-neutral-700 rounded-full"></span>
                             <span className="text-xs font-bold text-neutral-400 tracking-tight">
@@ -514,9 +440,78 @@ export default function StatisticsDashboard() {
               )}
             </div>
 
-            <div className="p-8 border-t border-white/5 bg-neutral-950/40 text-center text-neutral-600 text-[10px] font-black tracking-[0.3em] uppercase">
-              End of Log Stream
-            </div>
+            {/* Pagination Controls */}
+            {filteredActions.length > 0 && (
+              <div className="px-8 py-6 border-t border-white/5 bg-neutral-950/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p className="text-neutral-500 text-xs font-bold">
+                  Page {currentPage} of {totalPages} · {filteredActions.length} total records
+                </p>
+
+                <div className="flex items-center gap-2">
+                  {/* Previous */}
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="p-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+
+                  {/* Page numbers */}
+                  {(() => {
+                    const pages = [];
+                    let start = Math.max(1, currentPage - 2);
+                    let end = Math.min(totalPages, start + 4);
+                    if (end - start < 4) start = Math.max(1, end - 4);
+
+                    if (start > 1) {
+                      pages.push(
+                        <button key={1} onClick={() => setCurrentPage(1)} className="w-10 h-10 rounded-xl text-xs font-black tracking-wider border border-white/5 bg-white/5 hover:bg-white/10 transition-all active:scale-95">
+                          1
+                        </button>
+                      );
+                      if (start > 2) pages.push(<span key="dots-start" className="text-neutral-600 px-1">···</span>);
+                    }
+
+                    for (let i = start; i <= end; i++) {
+                      pages.push(
+                        <button
+                          key={i}
+                          onClick={() => setCurrentPage(i)}
+                          className={`w-10 h-10 rounded-xl text-xs font-black tracking-wider transition-all active:scale-95 ${
+                            currentPage === i
+                              ? "bg-orange-500 text-black shadow-lg shadow-orange-500/20 border border-orange-400"
+                              : "border border-white/5 bg-white/5 hover:bg-white/10"
+                          }`}
+                        >
+                          {i}
+                        </button>
+                      );
+                    }
+
+                    if (end < totalPages) {
+                      if (end < totalPages - 1) pages.push(<span key="dots-end" className="text-neutral-600 px-1">···</span>);
+                      pages.push(
+                        <button key={totalPages} onClick={() => setCurrentPage(totalPages)} className="w-10 h-10 rounded-xl text-xs font-black tracking-wider border border-white/5 bg-white/5 hover:bg-white/10 transition-all active:scale-95">
+                          {totalPages}
+                        </button>
+                      );
+                    }
+
+                    return pages;
+                  })()}
+
+                  {/* Next */}
+                  <button
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="p-2.5 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
