@@ -30,7 +30,12 @@ export default function StatisticsDashboard() {
       setLoading(true);
       setAuthError("");
       try {
-        const res = await fetch(`/api/stats?password=${encodeURIComponent(p)}`);
+        const res = await fetch("/api/stats", {
+          headers: {
+            "x-stats-password": p,
+          },
+          cache: "no-store",
+        });
         if (res.status === 401) {
           setAuthError("Incorrect access password.");
           setIsAuthenticated(false);
@@ -359,7 +364,7 @@ export default function StatisticsDashboard() {
 
               <div className="hidden lg:block px-5 py-2.5 bg-neutral-800/80 rounded-full text-[10px] font-black tracking-widest text-neutral-400 border border-white/5">
                 {filteredActions.length > 0
-                  ? `${(currentPage - 1) * ITEMS_PER_PAGE + 1}–${Math.min(currentPage * ITEMS_PER_PAGE, filteredActions.length)} OF ${filteredActions.length}`
+                  ? `${(currentPage - 1) * ITEMS_PER_PAGE + 1}â€“${Math.min(currentPage * ITEMS_PER_PAGE, filteredActions.length)} OF ${filteredActions.length}`
                   : "0 RECORDS"}
               </div>
             </div>
@@ -409,7 +414,7 @@ export default function StatisticsDashboard() {
                                 {item.name}
                                 {item.designation && (
                                   <span className="text-neutral-500 font-medium ml-2 text-sm italic">
-                                    — {item.designation}
+                                    â€” {item.designation}
                                   </span>
                                 )}
                               </h4>
@@ -444,7 +449,7 @@ export default function StatisticsDashboard() {
             {filteredActions.length > 0 && (
               <div className="px-8 py-6 border-t border-white/5 bg-neutral-950/40 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p className="text-neutral-500 text-xs font-bold">
-                  Page {currentPage} of {totalPages} · {filteredActions.length} total records
+                  Page {currentPage} of {totalPages} Â· {filteredActions.length} total records
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -470,7 +475,7 @@ export default function StatisticsDashboard() {
                           1
                         </button>
                       );
-                      if (start > 2) pages.push(<span key="dots-start" className="text-neutral-600 px-1">···</span>);
+                      if (start > 2) pages.push(<span key="dots-start" className="text-neutral-600 px-1">Â·Â·Â·</span>);
                     }
 
                     for (let i = start; i <= end; i++) {
@@ -490,7 +495,7 @@ export default function StatisticsDashboard() {
                     }
 
                     if (end < totalPages) {
-                      if (end < totalPages - 1) pages.push(<span key="dots-end" className="text-neutral-600 px-1">···</span>);
+                      if (end < totalPages - 1) pages.push(<span key="dots-end" className="text-neutral-600 px-1">Â·Â·Â·</span>);
                       pages.push(
                         <button key={totalPages} onClick={() => setCurrentPage(totalPages)} className="w-10 h-10 rounded-xl text-xs font-black tracking-wider border border-white/5 bg-white/5 hover:bg-white/10 transition-all active:scale-95">
                           {totalPages}

@@ -6,6 +6,7 @@
     "dev": "next dev -p 7000",
     "build": "next build",
     "start": "next start -p 7000",
+    "start:prod": "next start -H 127.0.0.1 -p 7000",
     "lint": "eslint"
   },
   "dependencies": {
