@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
+<<<<<<< HEAD
 import Cropper from "react-easy-crop";
 import {
   Download,
@@ -217,213 +216,122 @@ export default function EidCardGenerator() {
       );
     }
   };
+=======
+import Image from "next/image";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { frames } from "@/lib/framesConfig";
+>>>>>>> 33a4f01 (feat: implement dynamic frame configuration system for custom photo and text positioning)
 
+export default function Home() {
   return (
-    <div className="min-h-screen bg-neutral-100 flex flex-col md:flex-row font-sans">
-      {/* Sidebar Controls */}
-      <div className="w-full md:w-80 lg:w-96 bg-white border-r border-neutral-200 overflow-y-auto flex-shrink-0 flex flex-col hidden-scrollbar h-fit md:h-screen">
-        <div className="p-6 border-b border-neutral-100 bg-white sticky top-0 z-10">
-          <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">
-            Betopia Eid Card
-          </h1>
-          <p className="text-sm text-neutral-500">
-            Create customized greetings cards instantly.
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-8 h-8 text-blue-400" />
+              <h1 className="text-2xl font-bold text-white">
+                Betopia Greetings
+              </h1>
+            </div>
+            <p className="text-slate-300 text-sm">
+              Create beautiful greeting cards
+            </p>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+            Choose Your Frame
+          </h2>
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
+            Select a frame for any occasion and create a personalized greeting
+            card. Add your photo, name, and message to make it special.
           </p>
         </div>
 
-        <div className="p-6 space-y-6 flex-grow">
-          {/* Main Inputs */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Employee Name
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-shadow outline-none text-neutral-900"
-                placeholder="Your Name"
-              />
-            </div>
+        {/* Frames Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {frames.map((frame) => (
+            <Link href={`/frames/${frame.id}`} key={frame.id}>
+              <div className="h-full group cursor-pointer">
+                <div className="rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-slate-800 border border-slate-700 hover:border-blue-400 flex flex-col h-full">
+                  {/* Image Area */}
+                  <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800">
+                    <Image
+                      src={frame.previewImage}
+                      alt={frame.name}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      priority={false}
+                    />
+                    {/* Fallback gradient */}
+                    <div
+                      className="absolute inset-0 opacity-30"
+                      style={{
+                        backgroundImage: `linear-gradient(135deg, ${frame.color} 0%, ${frame.color}80 100%)`,
+                      }}
+                    />
+                  </div>
 
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Designation
-              </label>
-              <input
-                type="text"
-                value={designation}
-                onChange={(e) => setDesignation(e.target.value)}
-                className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-shadow outline-none text-neutral-900"
-                placeholder="Your Designation"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-700 mb-1">
-                Photo Upload
-              </label>
-              {!photoSrc ? (
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-neutral-300 border-dashed rounded-lg hover:border-orange-400 transition-colors bg-neutral-50 relative">
-                  <div className="space-y-1 text-center">
-                    <ImageIcon className="mx-auto h-12 w-12 text-neutral-400" />
-                    <div className="flex text-sm text-neutral-600 justify-center">
-                      <label
-                        htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-orange-600 hover:text-orange-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-orange-500 px-2 py-1"
-                      >
-                        <span>Upload a file</span>
-                        <input
-                          ref={fileInputRef}
-                          id="file-upload"
-                          name="file-upload"
-                          type="file"
-                          className="sr-only"
-                          accept="image/*"
-                          onChange={handleFileChange}
-                        />
-                      </label>
+                  {/* Content Area */}
+                  <div className="flex-1 flex flex-col justify-between p-5">
+                    <div>
+                      <h3 className="text-lg font-bold text-white mb-1">
+                        {frame.name}
+                      </h3>
+                      <p className="text-sm text-slate-300 line-clamp-2">
+                        {frame.description}
+                      </p>
                     </div>
-                    <p className="text-xs text-neutral-500">
-                      PNG, JPG up to 10MB
-                    </p>
+                    <button className="mt-4 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors group/btn">
+                      Create Card
+                      <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                    </button>
                   </div>
                 </div>
-              ) : (
-                <>
-                  {/* Hidden input for re-upload */}
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    className="sr-only"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                </>
-              )}
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-700 bg-slate-900/50 mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h4 className="text-white font-semibold mb-4">About</h4>
+              <p className="text-slate-400 text-sm">
+                Create personalized greeting cards for any occasion with
+                beautiful frames and templates.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Features</h4>
+              <ul className="text-slate-400 text-sm space-y-2">
+                <li>✓ Easy photo upload</li>
+                <li>✓ Custom text options</li>
+                <li>✓ High-resolution download</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-white font-semibold mb-4">Share</h4>
+              <p className="text-slate-400 text-sm">
+                Create, download, and share your greeting cards instantly.
+              </p>
             </div>
           </div>
-
-          {/* Photo Cropper UI */}
-          {photoSrc && (
-            <div className="space-y-4">
-              <h2 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider flex items-center gap-2">
-                <Move className="w-4 h-4 text-orange-500" /> Adjust Photo
-                Position
-              </h2>
-              <div className="relative w-full h-64 bg-neutral-900 rounded-lg overflow-hidden border border-neutral-800 shadow-inner">
-                <Cropper
-                  image={photoSrc}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={CONFIG.ovalRadiusX / CONFIG.ovalRadiusY}
-                  cropShape="rect"
-                  showGrid={false}
-                  onCropChange={setCrop}
-                  onCropComplete={onCropComplete}
-                  onZoomChange={setZoom}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-neutral-500 mb-2 flex justify-between">
-                  <span>Zoom Level</span>
-                  <span>{Number(zoom).toFixed(1)}x</span>
-                </label>
-                <input
-                  type="range"
-                  value={zoom}
-                  min={1}
-                  max={3}
-                  step={0.1}
-                  aria-labelledby="Zoom"
-                  onChange={(e) => setZoom(Number(e.target.value))}
-                  className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
-                />
-              </div>
-              {/* Change Photo button */}
-              <button
-                onClick={handleChangePhoto}
-                className="w-full py-2 px-4 border-2 border-dashed border-orange-400 text-orange-600 hover:bg-orange-50 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 text-sm cursor-pointer"
-              >
-                <Upload className="w-4 h-4" />
-                Change Photo
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Download Button moved to canvas area */}
-      </div>
-
-      {/* Preview Canvas Area */}
-      <div className="flex-1 overflow-hidden relative bg-[#f8f9fa] flex items-center justify-center p-8 bg-grid-pattern">
-        {/* Subtle grid pattern background for preview area */}
-        <div
-          className="absolute inset-0 z-0 opacity-[0.03]"
-          style={{
-            backgroundImage:
-              "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        ></div>
-
-        <div className="relative z-10 w-full max-w-2xl h-full flex flex-col items-center justify-center pb-8 overflow-y-auto hidden-scrollbar">
-          <div className="relative mx-auto w-full aspect-square bg-white shadow-sm rounded-xl overflow-hidden ring-1 ring-neutral-200 transition-all duration-300">
-            {/* The actual off-screen canvas rendering high res */}
-            <canvas
-              ref={canvasRef}
-              width={TEMPLATE_WIDTH}
-              height={TEMPLATE_HEIGHT}
-              className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-            />
-            {/* Placeholder – centered over the oval photo area on the card */}
-            {!photoSrc && (
-              <div
-                className="absolute flex items-center justify-center"
-                style={{
-                  // The oval center on the 2160×2160 canvas
-                  // ovalX=529, ovalY=985, radX=296, radY=395
-                  // As percentages of the full canvas:
-                  left: `${(CONFIG.ovalX / TEMPLATE_WIDTH) * 100}%`,
-                  top: `${(CONFIG.ovalY / TEMPLATE_HEIGHT) * 100}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-neutral-100 flex items-center gap-2 animate-bounce whitespace-nowrap">
-                  <span className="relative flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
-                  </span>
-                  <span className="text-sm font-medium text-neutral-700">
-                    Upload Your Photo...
-                  </span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-8 w-full max-w-lg mx-auto shrink-0 flex items-center justify-between gap-4">
-            <button
-              onClick={handleDownload}
-              className="flex-1 py-3 px-6 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 group cursor-pointer shadow-sm"
-            >
-              <Download className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-              <span className="hidden sm:inline">Download High-Res Card</span>
-              <span className="sm:hidden">Download</span>
-            </button>
-
-            <button
-              onClick={handleShare}
-              className="py-3 px-6 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-medium rounded-md transition-all flex items-center justify-center gap-2 group cursor-pointer shadow-sm shrink-0"
-              title="Share"
-            >
-              <span>Share</span>
-              <Share2 className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-            </button>
+          <div className="border-t border-slate-700 pt-8 text-center text-slate-400 text-sm">
+            <p>&copy; 2026 Betopia Greetings. All rights reserved.</p>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
