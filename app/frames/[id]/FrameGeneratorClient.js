@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import { getFrameConfig } from "@/lib/framesConfig";
 
-
 export default function FrameGeneratorClient({ frame, frameId }) {
   // Get frame-specific configuration
   const CONFIG = getFrameConfig(frameId);
@@ -200,19 +199,8 @@ export default function FrameGeneratorClient({ frame, frameId }) {
 
   return (
     <div className="min-h-screen bg-neutral-100 flex flex-col md:flex-row font-sans">
-      {/* Back Button */}
-      <Link
-        href="/"
-        className="absolute top-4 left-4 z-20 bg-white hover:bg-neutral-100 p-2 rounded-lg shadow-sm transition-colors flex items-center gap-2"
-      >
-        <ArrowLeft className="w-5 h-5 text-neutral-700" />
-        <span className="text-neutral-700 font-medium hidden sm:inline">
-          Back
-        </span>
-      </Link>
-
       {/* Sidebar Controls */}
-      <div className="w-full md:w-80 lg:w-96 bg-white border-r border-neutral-200 overflow-y-auto flex-shrink-0 flex flex-col h-fit md:h-screen">
+      <div className="w-full md:w-80 lg:w-96 bg-white border-r border-neutral-200 flex-shrink-0 flex flex-col h-fit md:h-screen">
         <div className="p-6 border-b border-neutral-100 bg-white sticky top-0 z-10">
           <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">
             {frame.name}
@@ -220,7 +208,7 @@ export default function FrameGeneratorClient({ frame, frameId }) {
           <p className="text-sm text-neutral-500 mt-1">{frame.description}</p>
         </div>
 
-        <div className="p-6 space-y-6 flex-grow">
+        <div className="p-6 space-y-6 flex-grow overflow-y-auto">
           {/* Main Inputs */}
           <div className="space-y-4">
             <div>
@@ -333,6 +321,17 @@ export default function FrameGeneratorClient({ frame, frameId }) {
               </button>
             </div>
           )}
+        </div>
+
+        {/* Back Button — pinned to sidebar bottom */}
+        <div className="p-4 border-t border-neutral-100 bg-white sticky bottom-0 mt-auto hidden md:block">
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 font-medium rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-neutral-700" />
+            <span className="text-neutral-700 font-medium">Back</span>
+          </Link>
         </div>
       </div>
 
