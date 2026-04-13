@@ -13,10 +13,15 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Image src="/Asset 5.svg" alt="Logo" width={100} height={100} />
+              <Image
+                src="/Betopia Group.svg"
+                alt="Logo"
+                width={100}
+                height={100}
+              />
             </div>
             <p className="text-slate-600 text-sm">
-              Create beautiful greeting cards
+              Create Beautiful Greeting Cards
             </p>
           </div>
         </div>
