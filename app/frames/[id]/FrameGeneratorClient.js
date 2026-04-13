@@ -262,7 +262,7 @@ export default function FrameGeneratorClient({ frame, frameId }) {
                       </label>
                     </div>
                     <p className="text-xs text-neutral-500">
-                      PNG, JPG up to 10MB
+                      PNG, JPG up to 5MB
                     </p>
                   </div>
                 </div>
