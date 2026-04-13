@@ -45,7 +45,7 @@ lib/
 
 **Current Frames:**
 
-- Pohela Boishak
+- Pohela Boishakh
 - Eid Mubarak
 - Birthday
 - Wedding

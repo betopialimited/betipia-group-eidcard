@@ -33,9 +33,9 @@ For each frame template (2160×2160px):
    - `nameSize` = font size for name
    - `desigSize` = font size for designation
 
-## 🎨 Example: Customizing Pohela Boishak Frame
+## 🎨 Example: Customizing Pohela Boishakh Frame
 
-If your Pohela Boishak template has:
+If your Pohela Boishakh template has:
 
 - Photo circle at position (500, 1000) with radius 300×400
 
@@ -67,7 +67,7 @@ If your Pohela Boishak template has:
 ## 📝 Current Frames and Their Config IDs
 
 ```
-"pohela-boishak"    → Pohela Boishak
+"pohela-boishak"    → Pohela Boishakh
 "eid-mubarak"       → Eid Mubarak
 "birthday"          → Birthday
 "wedding"           → Wedding
