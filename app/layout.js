@@ -7,8 +7,8 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Betopia Eid Greetings Card",
-  description: "Generate Eid greetings cards",
+  title: "Betopia Group Photo Frame",
+  description: "Betopia Group Photo Frame",
 };
 
 export default function RootLayout({ children }) {
